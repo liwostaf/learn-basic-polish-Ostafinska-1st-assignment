@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learn Basic Polish</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #58cc02, #46a302);
+      min-height: 100vh;
+      color: #1f2937;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: #f3f4f6;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 2px solid #d1d5db;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .primary {
+      background: #58cc02;
+      color: white;
+      width: 100%;
+    }
+
+    .primary:hover {
+      background: #46a302;
+    }
+
+    .choice-btn {
+      width: 100%;
+      text-align: left;
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      margin-bottom: 12px;
+      color: #111827;
+    }
+
+    .choice-btn:hover {
+      border-color: #58cc02;
+      background: #f0fdf4;
+    }
+
+    .feedback {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .correct {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .wrong {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #58cc02;
+      transition: width 0.3s ease;
+    }
+
+    .lesson-card {
+      background: #f9fafb;
+      padding: 18px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .result-score {
+      font-size: 28px;
+      font-weight: bold;
+      color: #58cc02;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Home Screen -->
+    <div id="homeScreen">
+      <h1>Learn Basic Polish 🇵🇱</h1>
+      <p class="subtitle">A simple Duolingo-style starter game for learning basic Polish conversation.</p>
+
+      <div class="stats">
+        <div class="stat-box">Total XP: <span id="homeXP">0</span></div>
+        <div class="stat-box">Lessons Completed: <span id="homeLessons">0</span></div>
+      </div>
+
+      <label for="nameInput"><strong>What's your first name?</strong></label>
+      <input type="text" id="nameInput" placeholder="Enter your first name" />
+      <button class="primary" onclick="startApp()">Let's go!</button>
+    </div>
+
+    <!-- Intro Screen -->
+    <div id="introScreen" class="hidden">
+      <h2 id="greetingText"></h2>
+      <p class="subtitle">Let's learn some basic Polish together!</p>
+      <div class="lesson-card">
+        <h3>What you'll practice</h3>
+        <p>You'll learn 10 basic words and phrases like:</p>
+        <ul>
+          <li>Hello</li>
+          <li>My name is...</li>
+          <li>What is your name?</li>
+          <li>How are you?</li>
+          <li>I'm fine</li>
+        </ul>
+      </div>
+      <button class="primary" onclick="beginLesson()">Start Lesson 1</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen" class="hidden">
+      <div class="stats">
+        <div class="stat-box">Score: <span id="scoreDisplay">0</span></div>
+        <div class="stat-box">Streak: <span id="streakDisplay">0</span></div>
+        <div class="stat-box">Question: <span id="questionCount">1</span>/10</div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="lesson-card">
+        <p class="small">Translate from Polish to English</p>
+        <h2 id="questionText"></h2>
+      </div>
+
+      <div id="choicesContainer"></div>
+      <div id="feedbackBox" class="feedback hidden"></div>
+      <button id="nextBtn" class="primary hidden" onclick="nextQuestion()">Next</button>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="resultsScreen" class="hidden center">
+      <h2>Gratulacje! 🎉</h2>
+      <p>You completed the module.</p>
+      <div class="result-score">Score: <span id="finalScore"></span>/10</div>
+      <p><strong>Best streak this round:</strong> <span id="finalStreak"></span></p>
+      <p><strong>XP earned:</strong> <span id="earnedXP"></span></p>
+      <button class="primary" onclick="restartLesson()">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Cześć",
+        choices: ["Hello", "Goodbye", "Thank you"],
+        answer: "Hello"
+      },
+      {
+        question: "Mam na imię...",
+        choices: ["How are you?", "My name is...", "See you later"],
+        answer: "My name is..."
+      },
+      {
+        question: "Jak masz na imię?",
+        choices: ["What is your name?", "Where are you from?", "How old are you?"],
+        answer: "What is your name?"
+      },
+      {
+        question: "Jak się masz?",
+        choices: ["How are you?", "What time is it?", "What do you want?"],
+        answer: "How are you?"
+      },
+      {
+        question: "Dobrze",
+        choices: ["Bad", "Fine/Good", "Please"],
+        answer: "Fine/Good"
+      },
+      {
+        question: "Dziękuję",
+        choices: ["Thank you", "Sorry", "Hello"],
+        answer: "Thank you"
+      },
+      {
+        question: "Proszę",
+        choices: ["Please / You're welcome", "No", "Friend"],
+        answer: "Please / You're welcome"
+      },
+      {
+        question: "Tak",
+        choices: ["No", "Yes", "Maybe"],
+        answer: "Yes"
+      },
+      {
+        question: "Nie",
+        choices: ["Later", "Yes", "No"],
+        answer: "No"
+      },
+      {
+        question: "Do widzenia",
+        choices: ["Goodbye", "Good morning", "My name is"],
+        answer: "Goodbye"
+      }
+    ];
+
+    const encouragementCorrect = [
+      "Great job!",
+      "Nice work!",
+      "Excellent!",
+      "You got it!",
+      "Awesome!"
+    ];
+
+    const encouragementWrong = [
+      "Good try — keep going!",
+      "You're learning, and that's what matters.",
+      "Almost! Let's keep practicing.",
+      "That's okay — try the next one.",
+      "No worries, you're still making progress."
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let streak = 0;
+    let bestStreak = 0;
+    let playerName = "";
+
+    function getSavedXP() {
+      return parseInt(localStorage.getItem("polishXP")) || 0;
+    }
+
+    function getSavedLessons() {
+      return parseInt(localStorage.getItem("polishLessons")) || 0;
+    }
+
+    function updateHomeStats() {
+      document.getElementById("homeXP").textContent = getSavedXP();
+      document.getElementById("homeLessons").textContent = getSavedLessons();
+    }
+
+    function startApp() {
+      const name = document.getElementById("nameInput").value.trim();
+      if (!name) {
+        alert("Please enter your first name.");
+        return;
+      }
+
+      playerName = name;
+      document.getElementById("homeScreen").classList.add("hidden");
+      document.getElementById("introScreen").classList.remove("hidden");
+      document.getElementById("greetingText").textContent = `Hi ${playerName}!`;
+    }
+
+    function beginLesson() {
+      document.getElementById("introScreen").classList.add("hidden");
+      document.getElementById("quizScreen").classList.remove("hidden");
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById("questionText").textContent = q.question;
+      document.getElementById("questionCount").textContent = currentQuestion + 1;
+      document.getElementById("scoreDisplay").textContent = score;
+      document.getElementById("streakDisplay").textContent = streak;
+      document.getElementById("progressFill").style.width = `${(currentQuestion / questions.length) * 100}%`;
+
+      const choicesContainer = document.getElementById("choicesContainer");
+      choicesContainer.innerHTML = "";
+
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.textContent = choice;
+        btn.onclick = () => checkAnswer(choice);
+        choicesContainer.appendChild(btn);
+      });
+
+      document.getElementById("feedbackBox").classList.add("hidden");
+      document.getElementById("nextBtn").classList.add("hidden");
+    }
+
+    function checkAnswer(selected) {
+      const q = questions[currentQuestion];
+      const feedbackBox = document.getElementById("feedbackBox");
+      const choiceButtons = document.querySelectorAll(".choice-btn");
+      choiceButtons.forEach(btn => btn.disabled = true);
+
+      if (selected === q.answer) {
+        score++;
+        streak++;
+        if (streak > bestStreak) bestStreak = streak;
+
+        let message = encouragementCorrect[Math.floor(Math.random() * encouragementCorrect.length)];
+        if (streak === 5) {
+          message = "5 in a row! Amazing work! 🔥";
+        }
+
+        feedbackBox.textContent = `${message} "${q.question}" means "${q.answer}".`;
+        feedbackBox.className = "feedback correct";
+      } else {
+        streak = 0;
+        let message = encouragementWrong[Math.floor(Math.random() * encouragementWrong.length)];
+        feedbackBox.textContent = `${message} The correct answer was "${q.answer}".`;
+        feedbackBox.className = "feedback wrong";
+      }
+
+      document.getElementById("scoreDisplay").textContent = score;
+      document.getElementById("streakDisplay").textContent = streak;
+      feedbackBox.classList.remove("hidden");
+      document.getElementById("nextBtn").classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        finishLesson();
+      }
+    }
+
+    function finishLesson() {
+      const earned = score * 10;
+      const totalXP = getSavedXP() + earned;
+      const totalLessons = getSavedLessons() + 1;
+
+      localStorage.setItem("polishXP", totalXP);
+      localStorage.setItem("polishLessons", totalLessons);
+
+      document.getElementById("quizScreen").classList.add("hidden");
+      document.getElementById("resultsScreen").classList.remove("hidden");
+
+      document.getElementById("finalScore").textContent = score;
+      document.getElementById("finalStreak").textContent = bestStreak;
+      document.getElementById("earnedXP").textContent = earned;
+    }
+
+    function restartLesson() {
+      currentQuestion = 0;
+      score = 0;
+      streak = 0;
+      bestStreak = 0;
+
+      document.getElementById("resultsScreen").classList.add("hidden");
+      document.getElementById("homeScreen").classList.remove("hidden");
+      document.getElementById("nameInput").value = playerName;
+      updateHomeStats();
+    }
+
+    updateHomeStats();
+  </script>
+</body>
+</html>
